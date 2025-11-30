@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script type="module">import { injectIntoGlobalHook } from "/@react-refresh";
+injectIntoGlobalHook(window);
+window.$RefreshReg$ = () => {};
+window.$RefreshSig$ = () => (type) => type;</script>
+
+    <script type="module" src="/@vite/client"></script>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WholeScaler - B2B Wholesale Platform</title>
+    <meta
+      name="description"
+      content="Streamline your B2B wholesale operations. Connect wholesalers and retailers in one powerful platform."
+    />
+    <meta name="author" content="WholeScaler" />
+
+    <meta property="og:title" content="WholeScaler - B2B Wholesale Platform" />
+    <meta
+      property="og:description"
+      content="Streamline your B2B wholesale operations. Connect wholesalers and retailers in one powerful platform."
+    />
+    <meta property="og:type" content="website" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" href="/favicon.ico" />
+
+    <!-- Razorpay SDK -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
