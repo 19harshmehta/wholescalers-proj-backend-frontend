@@ -1,65 +1,30 @@
 require("dotenv").config();
-const express = require("express");
 const mongoose = require("mongoose");
-const morgan = require("morgan");
-const cors = require("cors");
 const cluster = require("cluster");
 const os = require("os");
+const app = require("./app"); // <-- Import the Express app
 
 const numCPUs = os.cpus().length;
+const PORT = process.env.PORT || 4000;
 
 // ---------- CLUSTER MODE ----------
 if (cluster.isPrimary) {
+  // PRIMARY: Only manages workers
   console.log(` Primary process started (PID: ${process.pid})`);
   console.log(` Starting ${numCPUs} worker processes...`);
 
-  // Create workers
   for (let i = 0; i < numCPUs; i++) {
     cluster.fork();
   }
 
-  // Restart worker if it crashes
   cluster.on("exit", (worker, code, signal) => {
     console.log(`Worker ${worker.process.pid} died. Restarting...`);
     cluster.fork();
   });
 
 } else {
-  // ---------- WORKER PROCESSES ----------
-  const authRoutes = require("./routes/auth");
-  const productRoutes = require("./routes/products");
-  const dashboardRoutes = require("./routes/dashboard");
-  const retailerRoutes = require("./routes/retailer");
-  const orderRoutes = require("./routes/orders");
-  const invoiceRoutes = require("./routes/invoices");
-  const reportRoutes = require("./routes/reports");
-  const settingsRoutes = require("./routes/settings");
-  const paymentRoutes = require("./routes/payments");
-
-  const app = express();
-  app.use(cors());
-
-  app.use("/api/payments/webhook", paymentRoutes);
-
-  app.use(express.json());
-  app.use(morgan("dev"));
-
-  // Routes
-  app.use("/api/auth", authRoutes);
-  app.use("/api/products", productRoutes);
-  app.use("/api/dashboard", dashboardRoutes);
-  app.use("/api/retailerDashboard", retailerRoutes);
-  app.use("/api/orders", orderRoutes);
-  app.use("/api/invoices", invoiceRoutes);
-  app.use("/api/reports", reportRoutes);
-  app.use("/api/settings", settingsRoutes);
-  app.use("/api/payments", paymentRoutes);
-
-  app.get("/", (req, res) =>
-    res.json({ ok: true, msg: "B2B Wholesale Portal API" })
-  );
-
-  const PORT = process.env.PORT || 4000;
+  // WORKER: Connects to DB and starts listening
+  // Removed all app definition/route code (now in app.js)
 
   mongoose
     .connect(process.env.MONGO_URI, {
@@ -68,6 +33,7 @@ if (cluster.isPrimary) {
     })
     .then(() => {
       console.log(`Worker ${process.pid} connected to MongoDB`);
+      // Start the imported app instance
       app.listen(PORT, () =>
         console.log(`Worker ${process.pid} running on port ${PORT}`)
       );
