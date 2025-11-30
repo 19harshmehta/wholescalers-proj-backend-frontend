@@ -40,12 +40,7 @@ if (cluster.isPrimary) {
   const paymentRoutes = require("./routes/payments");
 
   const app = express();
-  app.use(cors(cors({
-    origin: "http://localhost:8080" || "https://wholescalers-proj-frontend.vercel.app/", // your frontend URL only
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
- })
-));
+  app.use(cors());
 
   app.use("/api/payments/webhook", paymentRoutes);
 
