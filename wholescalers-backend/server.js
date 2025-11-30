@@ -7,6 +7,9 @@ const cluster = require("cluster");
 const os = require("os");
 
 const numCPUs = os.cpus().length;
+const mongoSanitize = require("express-mongo-sanitize");
+const helmet = require("helmet");
+
 
 // ---------- CLUSTER MODE ----------
 if (cluster.isPrimary) {
@@ -37,7 +40,12 @@ if (cluster.isPrimary) {
   const paymentRoutes = require("./routes/payments");
 
   const app = express();
-  app.use(cors());
+  app.use(cors(cors({
+    origin: "http://localhost:8080" || "https://wholescalers-proj-frontend.vercel.app/", // your frontend URL only
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+ })
+));
 
   app.use("/api/payments/webhook", paymentRoutes);
 
@@ -55,10 +63,27 @@ if (cluster.isPrimary) {
   app.use("/api/settings", settingsRoutes);
   app.use("/api/payments", paymentRoutes);
 
+  app.use(
+    helmet.contentSecurityPolicy({
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:"],
+        connectSrc: ["'self'"],
+      },
+    })
+  );
+
   app.get("/", (req, res) =>
     res.json({ ok: true, msg: "B2B Wholesale Portal API" })
   );
 
+  app.use(
+    mongoSanitize({
+      replaceWith: "_"
+    })
+  );
   const PORT = process.env.PORT || 4000;
 
   mongoose
